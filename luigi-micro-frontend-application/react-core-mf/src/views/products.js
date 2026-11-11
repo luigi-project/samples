@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import "../../node_modules/fundamental-styles/dist/fundamental-styles.css";
 import "@ui5/webcomponents-icons/dist/AllIcons.js";
-import { Grid, List, StandardListItem } from "@ui5/webcomponents-react";
+import { Grid, List, ListItemStandard } from "@ui5/webcomponents-react";
 import { linkManager } from "@luigi-project/client";
 import { ProductCollection } from "../assets/products.js";
 
@@ -12,9 +12,16 @@ const Products = (props) => {
     const tempList = [];
     ProductCollection.forEach((product) => {
       tempList.push(
-        <StandardListItem id={product.id} key={product.id} additionalText={product.price + " " + product.currencyCode} additionalTextState="Information" description={product.description} growing="None" headerText={product.orderQuantity} icon={product.icon} type="Active" mode="None" onItemClick={() => handleItemClick(product.id)}>
-          <p>{product.name}</p>
-        </StandardListItem>
+        <ListItemStandard
+          id={product.id}
+          key={product.id}
+          additionalText={product.price + " " + product.currencyCode}
+          additionalTextState="Information"
+          description={product.description}
+          icon={product.icon}
+          type="Active"
+          text={product.name}
+        />
       );
       setListItems(tempList);
     });
