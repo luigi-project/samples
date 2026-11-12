@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import "../../node_modules/fundamental-styles/dist/fundamental-styles.css";
 import "@ui5/webcomponents-icons/dist/AllIcons.js";
 import {
-    Grid, ObjectPage, Label, DynamicPageHeader, DynamicPageTitle, ObjectStatus, FlexBox, Button, Toast, ObjectPageSection, FormItem, Form, Text, Bar
+    Grid, ObjectPage, Label, ObjectPageHeader, ObjectPageTitle, ObjectStatus, FlexBox, Button, Toast, ObjectPageSection, FormItem, Form, Text, Bar, Toolbar
 } from "@ui5/webcomponents-react";
 import { linkManager, getContext } from "@luigi-project/client";
 import { ProductCollection } from "../assets/products.js";
@@ -10,7 +10,7 @@ import { ProductCollection } from "../assets/products.js";
 const ProductDetail = (props) => {
     const [currentProduct, setCurrentProduct] = useState({});
     const [availability, setAvailability] = useState({
-        state: "Warning",
+        state: "Critical",
         text: props.localeDict.OUTOFSTOCK
     });
     const toast = useRef(null);
@@ -28,7 +28,10 @@ const ProductDetail = (props) => {
         ) || ProductCollection[0]
 
         setCurrentProduct(product);
-        currentProduct.stock ? setAvailability({ state: "Success", text: props.localeDict.AVAILABLE }) : ""
+        setAvailability({
+            state: product.stock ? "Positive" : "Critical",
+            text: product.stock ? props.localeDict.AVAILABLE : props.localeDict.OUTOFSTOCK
+        });
     }
 
     // Use Luigi Client linkManager API to navigate to the previous microfrontend
@@ -46,8 +49,8 @@ const ProductDetail = (props) => {
     return (
         <Grid position="Center" defaultIndent="XL1 L1 M1 S1" defaultSpan="XL10 L10 M10 S10">
             <ObjectPage
-                headerContent={
-                    <DynamicPageHeader>
+                headerArea={
+                    <ObjectPageHeader>
                         <FlexBox alignItems="Center" wrap="Wrap">
                             <FlexBox direction="Column" style={{ padding: "10px" }}>
                                 <Label>
@@ -55,13 +58,13 @@ const ProductDetail = (props) => {
                                 </Label>
                             </FlexBox>
                         </FlexBox>
-                    </DynamicPageHeader>
+                    </ObjectPageHeader>
                 }
-                footer={
+                footerArea={
                     <Bar design="FloatingFooter"
                         endContent={
                             <>
-                                <Button design="Emphasized" onClick={() => { toast.current.show() }}>
+                                <Button design="Emphasized" onClick={() => { toast.current.open = true }}>
                                     {props.localeDict.ADDTOCART}
                                 </Button>
                                 <Button design="Default" onClick={navBack}>
@@ -71,45 +74,40 @@ const ProductDetail = (props) => {
                         }
                     />
                 }
-                headerContentPinnable
-                headerTitle={
-                    <DynamicPageTitle
-                        actions={
-                            <>
-                                <Toast ref={toast}>
-                                    {props.localeDict.PRODUCTADDED}
-                                </Toast>
-                                <Button design="Emphasized" onClick={() => { toast.current.show() }}>
+                titleArea={
+                    <ObjectPageTitle
+                        actionsBar={
+                            <Toolbar>
+                                <Button design="Emphasized" onClick={() => { toast.current.open = true }}>
                                     {props.localeDict.ADDTOCART}
                                 </Button>
                                 <Button onClick={navBack}>
                                     {props.localeDict.BACK}
                                 </Button>
-                            </>
+                            </Toolbar>
                         }
                         header={currentProduct.name}
                     >
                         <ObjectStatus state={availability.state}>
                             {availability.text}
                         </ObjectStatus>
-                    </DynamicPageTitle>
+                    </ObjectPageTitle>
                 }
                 onSelectedSectionChange={function noRefCheck() { }}
                 selectedSectionId="details"
-                showHideHeaderButton
                 style={{
                     height: "700px",
                 }}
             >
                 <ObjectPageSection aria-label="Details" id="details" titleText="Details">
-                    <Form columnsL={2} columnsM={2} columnsXL={3} labelSpanL={1} labelSpanM={1} labelSpanXL={1}>
-                        <FormItem label="Name">
+                    <Form layout="S1 M2 L2 XL3" labelSpan="S12 M1 L1 XL1">
+                        <FormItem labelContent={<Label>Name</Label>}>
                             <Text>{currentProduct.name}</Text>
                         </FormItem>
-                        <FormItem label={props.localeDict.DESCRIPTION}>
+                        <FormItem labelContent={<Label>{props.localeDict.DESCRIPTION}</Label>}>
                             <Text>{currentProduct.description}</Text>
                         </FormItem>
-                        <FormItem label={props.localeDict.PRICE}>
+                        <FormItem labelContent={<Label>{props.localeDict.PRICE}</Label>}>
                             <Text>
                                 {currentProduct.price + " " + currentProduct.currencyCode}
                             </Text>
@@ -117,6 +115,9 @@ const ProductDetail = (props) => {
                     </Form>
                 </ObjectPageSection>
             </ObjectPage>
+            <Toast ref={toast}>
+                {props.localeDict.PRODUCTADDED}
+            </Toast>
         </Grid>
     );
 };
