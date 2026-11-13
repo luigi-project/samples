@@ -37,6 +37,6 @@
     "style-loader": "^4.0.0",
     "webpack": "5.105.4",
     "webpack-cli": "5.1.4",
-    "webpack-dev-server": "5.2.6"
+    "webpack-dev-server": "6.1.0"
   }
 }
